@@ -1,0 +1,6 @@
+env-fyp
+settings.py
+.vscode
+media
+*.sqlite3
+__pycache__
