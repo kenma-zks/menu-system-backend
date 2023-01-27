@@ -23,4 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/booking/',include('booking.urls')),
     path('api/menu/',include('menu.urls')),
+    path('api/accounts/',include('AdminManagement.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
