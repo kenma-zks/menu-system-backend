@@ -2,14 +2,14 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
-SubAdmin = get_user_model()
+User = get_user_model()
 
 class UserAdminCreationForm(forms.ModelForm):
     password = forms.CharField(widget = forms.PasswordInput)
     confirm_password = forms.CharField(widget = forms.PasswordInput)
 
     class Meta:
-        model = SubAdmin
+        model = User
         fields = ['email', 'first_name', 'last_name', 'phone_number']
 
     def clean(self):
@@ -31,7 +31,7 @@ class UserAdminChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField()
 
     class Meta:
-        model = SubAdmin
+        model = User
         fields = ['email', 'first_name', 'last_name', 'phone_number', 'password', 'active', 'staff']
 
     def clean_password(self):

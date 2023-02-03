@@ -6,7 +6,7 @@ from .forms import UserAdminChangeForm, UserAdminCreationForm
 
 # Register your models here.
 admin.site.unregister(Group)
-SubAdmin = get_user_model()
+User = get_user_model()
 
 class UserAdmin(BaseUserAdmin):
     form = UserAdminChangeForm
@@ -30,4 +30,4 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
     filter_horizontal = ()
 
-admin.site.register(SubAdmin, UserAdmin)
+admin.site.register(User, UserAdmin)

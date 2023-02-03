@@ -19,11 +19,12 @@ from rest_framework.authtoken import views
 from django.conf.urls.static import static
 from django.conf import settings
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/booking/',include('booking.urls')),
     path('api/menu/',include('menu.urls')),
-    path('api/accounts/',include('AdminManagement.urls')),
+    path('api/accounts/',include('accounts.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

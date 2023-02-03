@@ -3,14 +3,14 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from asyncio.windows_events import NULL
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, first_name, last_name, phone_number, password = None, is_active = True, is_staff= False, is_admin = False):
+    def create_user(self, email, first_name, last_name, phone_number, password=None, is_active=True, is_staff=False, is_admin=False):
         if not email:
             raise ValueError('Users must have an email address')
         if not password:
             raise ValueError('Users must have a password')
         if not first_name:
             raise ValueError('Users must have a first name')
-        if phone_number == NULL:
+        if not phone_number:
             raise ValueError('Users must have a phone number')
         user_obj = self.model(
             email = self.normalize_email(email),
@@ -22,33 +22,34 @@ class UserManager(BaseUserManager):
         user_obj.is_active = is_active
         user_obj.is_staff = is_staff
         user_obj.is_admin = is_admin
-        user_obj.save(using = self._db)
+        user_obj.save(using=self._db)
         return user_obj
 
-    def create_staffuser(self, email, first_name, last_name, phone_number, password = None):
+    def create_staffuser(self, email, first_name, last_name, phone_number, password=None):
         user = self.create_user(
             email,
             first_name,
             last_name,
             phone_number,
-            password = password,
-            is_staff = True
+            password=password,
+            is_staff=True
         )
         return user
 
-    def create_superuser(self, email, first_name, last_name, phone_number, password = None):
+    def create_superuser(self, email, first_name, last_name, phone_number, password=None):
         user = self.create_user(
             email,
             first_name,
             last_name,
             phone_number,
-            password = password,
-            is_staff = True,
-            is_admin = True
+            password=password,
+            is_staff=True,
+            is_admin=True
         )
         return user
 
-class SubAdmin(AbstractBaseUser):
+
+class User(AbstractBaseUser):
     id = models.AutoField(primary_key = True)
     email = models.EmailField(max_length = 255, unique = True)
     first_name = models.CharField(max_length = 255)
@@ -77,6 +78,7 @@ class SubAdmin(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+
 
     @property
     def is_staff(self):
