@@ -20,6 +20,7 @@ class FoodDetails(models.Model):
     food_price = models.IntegerField(blank=False, null=False)
     food_description = models.CharField(max_length=255, blank=False, null=False)
     food_image = models.ImageField(upload_to='food_images', blank=True, null=True)
+    food_available = models.BooleanField(default=True)
 
     class Meta:
         verbose_name_plural = "Food Details"
