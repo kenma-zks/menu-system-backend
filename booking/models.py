@@ -3,8 +3,8 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 
-def validate_date(booking_start):
-    if booking_start < timezone.now().date():
+def validate_date(booking_date):
+    if booking_date < timezone.now().date():
         raise ValidationError("Date cannot be in the past")
 
 def validate_phone_number(phone_number):
@@ -25,7 +25,7 @@ class Customer(models.Model):
         validators=[validate_phone_number]
     )
     table_capacity = models.IntegerField(blank=False, null=False, default=1, validators=[validate_table_capacity])
-    booking_start = models.DateField(null=True, blank=True, default = timezone.now() , validators=[validate_date])
+    booking_date = models.DateField(null=True, blank=True, default = timezone.now() , validators=[validate_date])
     booking_duration = models.CharField(max_length=200,blank=False, null=False)
     note = models.CharField(max_length=500, blank=True, null=True)
 
