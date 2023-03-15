@@ -11,4 +11,6 @@ class RegisterView(generics.CreateAPIView):
   queryset = Customer.objects.all()
   serializer_class = UserSerializer
 
-
+class BookingDetail(generics.RetrieveUpdateDestroyAPIView):
+  queryset = Customer.objects.all()
+  serializer_class = UserSerializer
