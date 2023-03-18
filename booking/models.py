@@ -28,6 +28,7 @@ class Customer(models.Model):
     booking_date = models.DateField(null=True, blank=True, default = timezone.now() , validators=[validate_date])
     booking_duration = models.CharField(max_length=200,blank=False, null=False)
     note = models.CharField(max_length=500, blank=True, null=True)
+    status = models.CharField(max_length=200, blank=True, null=True, default="Pending")
 
     def __str__(self):
         return self.first_name
