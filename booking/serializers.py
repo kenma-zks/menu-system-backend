@@ -7,10 +7,9 @@ from django.core.exceptions import ValidationError
 
 #Serializer to Get User Details using Django Token Authentication
 class UserSerializer(serializers.ModelSerializer):
-  booking_start = serializers.DateTimeField(format="%B %d, %Y %H:%M %p")
   class Meta:
     model = Customer
-    fields = ["id", "first_name", "last_name", "email", "phone_number", "table_capacity", "booking_start", "booking_duration", "note"]
+    fields = ["id", "first_name", "last_name", "email", "phone_number", "table_capacity", "booking_date", "booking_duration", "note", "status"]
 
   def create(self, validated_data):
     user = Customer.objects.create(
@@ -19,11 +18,10 @@ class UserSerializer(serializers.ModelSerializer):
       email=validated_data['email'],
       phone_number=validated_data['phone_number'],
       table_capacity=validated_data['table_capacity'],
-      booking_start=validated_data['booking_start'],
+      booking_date=validated_data['booking_date'],
       booking_duration=validated_data['booking_duration'],
       note=validated_data['note'],
+      status=validated_data['status'],
     )
     user.save()
     return user
-
-  
