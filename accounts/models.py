@@ -64,6 +64,7 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
+
     def __str__(self):
         return self.email
     
@@ -91,4 +92,9 @@ class User(AbstractBaseUser):
     @property
     def is_active(self):
         return self.active
+    
+class ForgotPassword(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # code = models.CharField(max_length=255, null=True, blank=True)
+    
 
