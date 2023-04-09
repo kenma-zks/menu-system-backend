@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from .serializers import  SubAdminSerializer, ForgotPasswordSerializer, VerifyCodeSerializer
-from .models import User, ForgotPassword, VerifyCode
+from .serializers import  SubAdminSerializer, ForgotPasswordSerializer, VerifyCodeSerializer, ResetPasswordSerializer
+from .models import User, ForgotPassword, VerifyCode, ResetPassword
 from .permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import logout
@@ -17,6 +17,8 @@ from rest_framework.decorators import api_view
 import random
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 
 class UserAccountList(generics.ListAPIView):
     serializer_class = SubAdminSerializer
@@ -55,43 +57,66 @@ class LogoutView(APIView):
         logout(request)
         return Response(status=status.HTTP_200_OK, data={"message": "You have been logged out."})
     
-@api_view(['POST'])
-def forgot_password(request):
-    serializer = ForgotPasswordSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    email = serializer.validated_data['email']
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'message': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-    user = User.objects.get(email=email)
-    if user:
+        # generate a verification code and send it to the user's email
         code = random.randint(100000, 999999)
-        forgot_password = ForgotPassword.objects.create(user=user, code=code)
-        VerifyCode.objects.create(code=code, forgot_password=forgot_password)
         send_mail(
-            'Forgot Password',
-            f'Your code is {code}',
+            'Password Reset Verification Code',
+            f'Use the following code to reset your password: {code}',
             settings.EMAIL_HOST_USER,
             [email],
             fail_silently=False,
         )
-        print(code)
-        return Response(status=status.HTTP_200_OK, data={"message": "Code sent to your email"})
-    return Response(status=status.HTTP_400_BAD_REQUEST, data={"message": "User not found"})
+
+        # store the verification code in the database
+        forgot_password = ForgotPassword.objects.create(user=user, code=code)
+        forgot_password.save()
+
+        return Response({'message': 'Verification code sent to email.'}, status=status.HTTP_200_OK)
+
+
+    
+class VerifyCodeView(APIView):
+    def post(self, request):
+        code = request.data.get('code')
+
+        try:
+            forgot_password = ForgotPassword.objects.get(code=code)
+        except ForgotPassword.DoesNotExist:
+            return Response({'message': 'Invalid code.'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'message': 'Code verified successfully.', 'user_id': forgot_password.user.id}, status=status.HTTP_200_OK)
+    
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+
+        user_id = request.data.get('user_id')
+        password = request.data.get('password')
+        confirm_password = request.data.get('confirm_password')
+
+        if password != confirm_password:
+            return Response({'message': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'message': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.set_password(password)
+        user.save()
+
+        return Response({'message': 'Password reset successfully.'}, status=status.HTTP_200_OK)
 
 
 
-@api_view(['POST'])
-def verify_code(request):
-    serializer = VerifyCodeSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    code = serializer.validated_data['code']
 
-    try:
-        VerifyCode.objects.get(code=code)
-        return Response(status=status.HTTP_200_OK, data={"message": "Code verified"})
-    except VerifyCode.DoesNotExist:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data={"message": "Code not verified"})
-
-
-         
     
    
