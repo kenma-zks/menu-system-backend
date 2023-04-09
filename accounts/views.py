@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from .serializers import  SubAdminSerializer, ForgotPasswordSerializer
-from .models import User, ForgotPassword
+from .serializers import  SubAdminSerializer, ForgotPasswordSerializer, VerifyCodeSerializer
+from .models import User, ForgotPassword, VerifyCode
 from .permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import logout
@@ -58,15 +58,14 @@ class LogoutView(APIView):
 @api_view(['POST'])
 def forgot_password(request):
     serializer = ForgotPasswordSerializer(data=request.data)
-
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data['email']
-
 
     user = User.objects.get(email=email)
     if user:
         code = random.randint(100000, 999999)
-        ForgotPassword.objects.create(user=user)
+        forgot_password = ForgotPassword.objects.create(user=user, code=code)
+        VerifyCode.objects.create(code=code, forgot_password=forgot_password)
         send_mail(
             'Forgot Password',
             f'Your code is {code}',
@@ -77,6 +76,20 @@ def forgot_password(request):
         print(code)
         return Response(status=status.HTTP_200_OK, data={"message": "Code sent to your email"})
     return Response(status=status.HTTP_400_BAD_REQUEST, data={"message": "User not found"})
+
+
+
+@api_view(['POST'])
+def verify_code(request):
+    serializer = VerifyCodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    code = serializer.validated_data['code']
+
+    try:
+        VerifyCode.objects.get(code=code)
+        return Response(status=status.HTTP_200_OK, data={"message": "Code verified"})
+    except VerifyCode.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST, data={"message": "Code not verified"})
 
 
          

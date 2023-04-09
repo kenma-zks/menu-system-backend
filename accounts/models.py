@@ -95,6 +95,10 @@ class User(AbstractBaseUser):
     
 class ForgotPassword(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # code = models.CharField(max_length=255, null=True, blank=True)
+    code = models.CharField(max_length=6, null=True, blank=True)
+
+class VerifyCode(models.Model):
+    code = models.CharField(max_length=6, null=True, blank=True)
+    forgot_password = models.ForeignKey(ForgotPassword, on_delete=models.CASCADE)
     
 
