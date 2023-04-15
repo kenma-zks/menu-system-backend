@@ -7,16 +7,20 @@ class OrderedItem(models.Model):
     quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        return str(self.food.food_name)
+        return str(self.food_id.food_name)
     
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     items = models.ManyToManyField(OrderedItem)
     total_price = models.PositiveIntegerField()
     total_items = models.PositiveIntegerField()
+    payment_method = models.CharField(max_length=128, blank=True, null=True)
     order_status = models.CharField(default='Pending', max_length=255)
     ordered_date = models.DateField(auto_now_add=True)
     ordered_time = models.TimeField(auto_now_add=True)
+    payment_id = models.CharField(max_length=128, blank=True, null=True)
+    payment_amount = models.PositiveIntegerField(blank=True, null=True)
+    payment_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return str(self.order_id)
