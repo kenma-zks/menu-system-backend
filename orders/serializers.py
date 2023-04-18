@@ -6,17 +6,24 @@ class OrderedItemSerializer(serializers.ModelSerializer):
         model = OrderedItem
         fields = ['food_id', 'quantity']
 
-class OrderSerializer(serializers.ModelSerializer):
-    items = OrderedItemSerializer(many=True, read_only=True)
 
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderedItemSerializer(many=True)
+    
     class Meta:
         model = Order
         fields = ['order_id', 'items', 'total_price', 'total_items', 'payment_method', 'order_status', 'ordered_date', 'ordered_time']
 
-    def get_items(self, obj):
-        items = OrderedItem.objects.filter(order_id=obj)
-        if items:
-            return OrderedItemSerializer(items, many=True).data
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        order = Order.objects.create(**validated_data)
+
+        for item_data in items_data:
+            item = OrderedItem.objects.create(**item_data)
+            order.items.add(item)
+
+        order.save()
+        return order
 
     
 

@@ -48,7 +48,7 @@ class PaymentTokenView(View):
             'product_url': 'http://localhost:5173/',
 
         }
-        response = requests.post('https://a.khalti.com/api/v2/payment/initiate/', json=payload, headers=headers)
+        response = requests.post('https://khalti.com/api/v2/payment/initiate/', json=payload, headers=headers)
         response.raise_for_status()
 
         data = response.json()
