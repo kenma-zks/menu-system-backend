@@ -10,6 +10,8 @@ class OrderedItem(models.Model):
         return str(self.food_id.food_name)
     
 class Order(models.Model):
+    user_name = models.CharField(max_length=255, blank=True, null=True)
+    table_no = models.CharField(max_length=255, blank=True, null=True)
     order_id = models.AutoField(primary_key=True)
     items = models.ManyToManyField(OrderedItem)
     total_price = models.PositiveIntegerField()
@@ -23,6 +25,6 @@ class Order(models.Model):
     payment_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.order_id)
+        return str(self.user_name)
 
     

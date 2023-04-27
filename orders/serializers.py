@@ -12,7 +12,7 @@ class OrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Order
-        fields = ['order_id', 'items', 'total_price', 'total_items', 'payment_method', 'order_status', 'ordered_date', 'ordered_time']
+        fields = ['user_name', 'table_no', 'order_id', 'items', 'total_price', 'total_items', 'payment_method', 'order_status', 'ordered_date', 'ordered_time']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
