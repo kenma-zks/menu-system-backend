@@ -17,6 +17,13 @@ from rest_framework.response import Response
 from datetime import datetime
 from io import BytesIO
 from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.db.models import Sum
+from datetime import timedelta
+from rest_framework.views import APIView
+from django.db.models.functions import ExtractMonth, ExtractYear
+import calendar
+
 # Create your views here.
 
 class OrderList(generics.ListCreateAPIView):
@@ -34,6 +41,84 @@ class OrderedItemList(generics.ListCreateAPIView):
 class OrderedItemDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = OrderedItem.objects.all()
     serializer_class = OrderedItemSerializer
+
+class SalesOverview(APIView):
+    def get(self, request, format = None):
+
+        filter_option = request.query_params.get('filter_option', 'This year')
+
+        if filter_option == 'This year':
+
+            # Get the sales of data for the last 12 months
+            today = datetime.today()
+            last_12_months = today - timedelta(days=365)
+            monthly_sales = Order.objects.annotate(month=ExtractMonth('ordered_date'))\
+                                        .filter(ordered_date__gte=last_12_months)\
+                                        .values('month')\
+                                        .annotate(total_sales=Sum('total_price'))\
+                                        .order_by('month')
+
+            #  Create the sales data array for the frontend
+            sales_data = []
+            for i in range(1, 13):
+                month_sales = next((item for item in monthly_sales if item['month'] == i), {'total_sales': 0})
+                sales_data.append({
+                    'name': calendar.month_name[i][:3],
+                    'sales': month_sales['total_sales']
+                })
+
+        elif filter_option == 'All time':
+            # Get the sales of data for all years
+            yearly_sales = Order.objects.annotate(year=ExtractYear('ordered_date'))\
+                                .values('year')\
+                                .annotate(total_sales=Sum('total_price'))\
+                                .order_by('year')
+            
+            # Create the sales data array for the frontend
+            sales_data = []
+            for year_sale in yearly_sales:
+                sales_data.append({
+                    'name': str(year_sale['year']),
+                    'sales': year_sale['total_sales']
+                })
+
+        # Get the total sales
+        total_sales = Order.objects.all().aggregate(Sum('total_price'))['total_price__sum'] or 0
+        # Get the total orders
+        total_orders = Order.objects.all().count()
+        
+        # Get the total sales for today
+        today = datetime.today()
+        today_sales = Order.objects.filter(ordered_date__gte=today).aggregate(Sum('total_price'))['total_price__sum'] or 0
+        # Get the total sales for yesterday
+        yesterday = datetime.today() - timedelta(days=1)
+        yesterday_sales = Order.objects.filter(ordered_date__gte=yesterday).aggregate(Sum('total_price'))['total_price__sum'] or 0
+        # Get the total sales for the last 7 days
+        last_7_days = datetime.today() - timedelta(days=7)
+        last_7_days_sales = Order.objects.filter(ordered_date__gte=last_7_days).aggregate(Sum('total_price'))['total_price__sum'] or 0
+        # Get the total sales for the last 30 days
+        last_30_days = datetime.today() - timedelta(days=30)
+        last_30_days_sales = Order.objects.filter(ordered_date__gte=last_30_days).aggregate(Sum('total_price'))['total_price__sum'] or 0
+
+        # Get the total sales for the last 365 days
+        last_365_days = datetime.today() - timedelta(days=365)
+        last_365_days_sales = Order.objects.filter(ordered_date__gte=last_365_days).aggregate(Sum('total_price'))['total_price__sum'] or 0
+
+        response = {
+            'total_sales': total_sales,
+            'total_orders': total_orders,
+            'today_sales': today_sales,
+            'yesterday_sales': yesterday_sales,
+            'last_7_days_sales': last_7_days_sales,
+            'last_30_days_sales': last_30_days_sales,
+            'last_365_days_sales': last_365_days_sales,
+            'sales_data': sales_data
+        }
+
+        return Response(response)
+    
+        
+
 
 def generate_pdf(request, order_id):
     # Retrieve the order from the database based on the order_id parameter
@@ -110,6 +195,7 @@ def download_pdf(request, order_id):
     return pdf_response
 
 @csrf_exempt
+@api_view(['POST'])
 def send_email(request, order_id):
     pdf = generate_pdf(request, order_id)
 
