@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = Customer
-    fields = ["id", "first_name", "last_name", "email", "phone_number", "table_capacity", "booking_date", "booking_duration", "note", "status"]
+    fields = ["id", "first_name", "last_name", "email", "phone_number", "table_capacity", "booking_date", "booking_time", "note", "status"]
 
   def create(self, validated_data):
     user = Customer.objects.create(
@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
       phone_number=validated_data['phone_number'],
       table_capacity=validated_data['table_capacity'],
       booking_date=validated_data['booking_date'],
-      booking_duration=validated_data['booking_duration'],
+      booking_time=validated_data['booking_time'],
       note=validated_data['note'],
       status=validated_data['status'],
     )

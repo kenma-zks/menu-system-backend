@@ -16,7 +16,7 @@ class Order(models.Model):
     items = models.ManyToManyField(OrderedItem)
     total_price = models.PositiveIntegerField()
     total_items = models.PositiveIntegerField()
-    note = models.CharField(max_length=255, blank=True, null=True)
+    note = models.CharField(max_length=350, blank=True, null=True)
     payment_method = models.CharField(max_length=128, blank=True, null=True)
     order_status = models.CharField(default='Pending', max_length=255)
     ordered_date = models.DateField(auto_now_add=True)

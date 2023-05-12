@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, ListRegisterView, BookingDetail, ListPastRegisterView, PastBookingDetail
+from .views import RegisterView, ListRegisterView, BookingDetail, ListPastRegisterView, PastBookingDetail, send_email
 
 urlpatterns = [
   path('register/',RegisterView.as_view()),
@@ -7,4 +7,5 @@ urlpatterns = [
   path('list/<int:pk>/',BookingDetail.as_view()),
   path('list/past/',ListPastRegisterView.as_view()),
   path('list/past/<int:pk>/',PastBookingDetail.as_view()),
+  path('email/',send_email),
 ]

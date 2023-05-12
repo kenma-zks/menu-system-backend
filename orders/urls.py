@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import OrderList, OrderDetail, OrderedItemList, OrderedItemDetail, PaymentTokenView, PaymentVerificationView, generate_pdf, download_pdf
+from .views import OrderList, OrderDetail, OrderedItemList, OrderedItemDetail, PaymentTokenView, PaymentVerificationView, generate_pdf, download_pdf, send_email
 
 urlpatterns = [
     path('order/', OrderList.as_view()),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('payment/token/', PaymentTokenView.as_view(), name='payment_token'),
     path('payment/verify/', PaymentVerificationView.as_view(), name='payment_verify'),
     path('order/pdf/<int:order_id>/', download_pdf, name='download_pdf'),
+    path('order/email/<int:order_id>/', send_email, name='send_email'),
 ]

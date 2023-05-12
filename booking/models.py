@@ -15,14 +15,14 @@ class Customer(models.Model):
     id = models.AutoField(primary_key= True)
     first_name = models.CharField(max_length=255, blank=False, null=False)
     last_name = models.CharField(max_length=255, blank=False, null=False)
-    email = models.EmailField(('email address'), unique=True, blank=False, null=False)
+    email = models.EmailField(('email address'), blank=False, null=False)
     phone_number = models.IntegerField(
         unique=True, blank=False, null=False,
         validators=[validate_phone_number]
     )
     table_capacity = models.CharField(max_length=200, blank=False, null=False)
     booking_date = models.DateField(null=True, blank=True, validators=[validate_date])
-    booking_duration = models.CharField(max_length=200,blank=False, null=False)
+    booking_time = models.CharField(max_length=200,blank=False, null=False)
     note = models.CharField(max_length=500, blank=True, null=True)
     status = models.CharField(max_length=200, blank=True, null=True, default="Pending")
 

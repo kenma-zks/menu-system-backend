@@ -8,8 +8,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
 import requests
-import json
-import uuid
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from reportlab.pdfgen import canvas
@@ -18,7 +16,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from datetime import datetime
 from io import BytesIO
-
+from django.core.mail import EmailMessage
 # Create your views here.
 
 class OrderList(generics.ListCreateAPIView):
@@ -110,6 +108,27 @@ def download_pdf(request, order_id):
     pdf_response = generate_pdf(request, order_id)
 
     return pdf_response
+
+@csrf_exempt
+def send_email(request, order_id):
+    pdf = generate_pdf(request, order_id)
+
+
+    # Send the email with the PDF attachment
+    email = request.data.get('email')
+    print(email)
+    msg = EmailMessage(
+        f'Order Receipt - {order_id}',
+        'Please find the attached order receipt',
+        settings.EMAIL_HOST_USER,
+        [email]
+    )
+    msg.attach(f'order_{order_id}.pdf', pdf.getvalue(), 'application/pdf')
+    msg.send()
+
+    return JsonResponse({'success': True})
+
+
 
 
 def accept_order(request, order_id):
