@@ -64,6 +64,7 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
+
     def __str__(self):
         return self.email
     
@@ -91,4 +92,17 @@ class User(AbstractBaseUser):
     @property
     def is_active(self):
         return self.active
+    
+class ForgotPassword(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6, null=True, blank=True)
+
+class VerifyCode(models.Model):
+    code = models.CharField(max_length=6, null=True, blank=True)
+    forgot_password = models.ForeignKey(ForgotPassword, on_delete=models.CASCADE)
+
+class ResetPassword(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reset_date = models.DateTimeField(auto_now_add=True)
+
 
