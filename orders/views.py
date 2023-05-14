@@ -218,7 +218,7 @@ def send_email(request, order_id):
 @csrf_exempt
 def verify_payment(request):
 
-    data = json.loads(request.body)
+    data = json.loads(request.body)         
 
     token = data.get('token')
     amount = data.get('amount')
