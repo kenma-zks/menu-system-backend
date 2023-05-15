@@ -17,7 +17,7 @@ class Customer(models.Model):
     last_name = models.CharField(max_length=255, blank=False, null=False)
     email = models.EmailField(('email address'), blank=False, null=False)
     phone_number = models.IntegerField(
-        unique=True, blank=False, null=False,
+        blank=False, null=False,
         validators=[validate_phone_number]
     )
     table_capacity = models.CharField(max_length=200, blank=False, null=False)
